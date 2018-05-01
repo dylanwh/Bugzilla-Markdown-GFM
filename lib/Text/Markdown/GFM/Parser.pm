@@ -16,6 +16,7 @@ sub SETUP {
             perl_to_native => sub { ${ $_[0] } },
         }
     );
+
     $FFI->attach(
         [ cmark_parser_new => 'new' ],
         [ 'markdown_options_t' ] => 'markdown_parser_t',
@@ -24,6 +25,12 @@ sub SETUP {
             return $c_func->($_[1]);
         }
     );
+
+    $FFI->attach(
+        [ cmark_parser_free => 'DESTROY' ],
+        [ 'markdown_parser_t' ] => 'void'
+    );
+
     $FFI->attach(
         [ cmark_parser_feed => 'feed'],
         ['markdown_parser_t', 'opaque', 'int'] => 'void',
