@@ -1,8 +1,30 @@
-package Text::Markdown::GFM::Parser;
+package Bugzilla::Markdown::GFM::Parser;
 use strict;
 use warnings;
 
 use FFI::Platypus::Buffer qw( scalar_to_buffer buffer_to_scalar );
+
+sub new {
+    my ($class, $options) = @_;
+    my $extensions = delete $options->{extensions} // [];
+    my $parser = $class->_new($options);
+    $parser->{_options} = $options;
+
+    foreach my $name (@$extensions) {
+        my $extension = Bugzilla::Markdown::GFM::SyntaxExtension->find($name)
+            or die "unknown extension: $name";
+        $parser->attach_syntax_extension($extension);
+    }
+
+    return $parser;
+}
+
+sub render_html {
+    my ($self, $markdown) = @_;
+    $self->feed($markdown);
+    my $node = $self->finish;
+    return $node->render_html($self->{_options}, $self->get_syntax_extensions);
+}
 
 sub SETUP {
     my ($class, $FFI) = @_;
@@ -11,14 +33,14 @@ sub SETUP {
         markdown_parser_t => {
             native_type    => 'opaque',
             native_to_perl => sub {
-                bless \$_[0], $class;
+                bless { _pointer => $_[0] }, $class;
             },
-            perl_to_native => sub { ${ $_[0] } },
+            perl_to_native => sub { $_[0]->{_pointer} },
         }
     );
 
     $FFI->attach(
-        [ cmark_parser_new => 'new' ],
+        [ cmark_parser_new => '_new' ],
         [ 'markdown_options_t' ] => 'markdown_parser_t',
         sub {
             my $c_func = shift;

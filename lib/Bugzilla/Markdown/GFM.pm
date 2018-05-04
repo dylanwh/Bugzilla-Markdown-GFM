@@ -1,4 +1,4 @@
-package Text::Markdown::GFM;
+package Bugzilla::Markdown::GFM;
 use strict;
 use warnings;
 
@@ -6,10 +6,11 @@ use Alien::libcmark_gfm;
 use FFI::Platypus;
 use FFI::Platypus::Buffer qw( scalar_to_buffer buffer_to_scalar );
 use Exporter qw(import);
-use Text::Markdown::GFM::SyntaxExtension;
-use Text::Markdown::GFM::SyntaxExtensionList;
-use Text::Markdown::GFM::Parser;
-use Text::Markdown::GFM::Node;
+
+use Bugzilla::Markdown::GFM::SyntaxExtension;
+use Bugzilla::Markdown::GFM::SyntaxExtensionList;
+use Bugzilla::Markdown::GFM::Parser;
+use Bugzilla::Markdown::GFM::Node;
 
 our @EXPORT_OK = qw(cmark_markdown_to_html);
 
@@ -70,10 +71,10 @@ $FFI->attach('core_extensions_ensure_registered' => [] => 'void');
 
 core_extensions_ensure_registered();
 
-Text::Markdown::GFM::SyntaxExtension->SETUP($FFI);
-Text::Markdown::GFM::SyntaxExtensionList->SETUP($FFI);
-Text::Markdown::GFM::Node->SETUP($FFI);
-Text::Markdown::GFM::Parser->SETUP($FFI);
+Bugzilla::Markdown::GFM::SyntaxExtension->SETUP($FFI);
+Bugzilla::Markdown::GFM::SyntaxExtensionList->SETUP($FFI);
+Bugzilla::Markdown::GFM::Node->SETUP($FFI);
+Bugzilla::Markdown::GFM::Parser->SETUP($FFI);
 
 1;
 
